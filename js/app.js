@@ -8,17 +8,25 @@ const cityCard = document.querySelector('[data-js="city-card"]')
 let timeImg = document.querySelector('[data-js="time"]')
 const timeIconContainer = document.querySelector('[data-js="time-icon"]')
 
-const showCiryCard = () => {
+const showCityCard = () => {
   if (cityCard.classList.contains('d-none')) {
     cityCard.classList.remove('d-none')
   }
 }
 
-const showCityWeatherInfo = async cityName => {
+const fetchCityWeatherInfo = async cityName => {
   const [{ Key, LocalizedName }] = await getCityData(cityName)
   const [{ WeatherText, Temperature, IsDayTime, WeatherIcon }] = await
     getCityWeather(Key)
-  const timeIcon = `<img src="./src/icons/${WeatherIcon}.svg" />`
+  
+  return { LocalizedName, WeatherText, Temperature, IsDayTime, WeatherIcon }
+}
+
+const showCityWeatherInfo = async cityName => {
+  const { LocalizedName, WeatherText, Temperature, IsDayTime, WeatherIcon } =
+    await fetchCityWeatherInfo(cityName)
+  
+    const timeIcon = `<img src="./src/icons/${WeatherIcon}.svg" />`
   const srcDaySvg = './src/day.svg'
   const srcNightSvg = './src/night.svg'
 
@@ -28,7 +36,7 @@ const showCityWeatherInfo = async cityName => {
   cityWeatherContainer.textContent = WeatherText
   cityTemperatureContainer.textContent = Temperature.Metric.Value
 
-  showCiryCard()
+  showCityCard()
 }
 
 const showLocalStorageCity = () => {
@@ -39,7 +47,7 @@ const showLocalStorageCity = () => {
   }
 }
 
-cityForm.addEventListener('submit', event => {
+const handleCityForm = event => {
   event.preventDefault()
   
   const inputValue = event.target.city.value
@@ -47,6 +55,8 @@ cityForm.addEventListener('submit', event => {
   showCityWeatherInfo(inputValue)
   localStorage.setItem('city', inputValue)
   cityForm.reset()
-})
+}
+
+cityForm.addEventListener('submit', handleCityForm)
 
 showLocalStorageCity()
